@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 	xmlns="http://www.springframework.org/schema/beans" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context" 
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:util="http://www.springframework.org/schema/util" xmlns:task="http://www.springframework.org/schema/task" 
+	    xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
+			http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	
+	<!-- 
+		使用aop基于配置的声明式事务管理
+	 -->
+	
+	<!-- 引入属性文件 -->
+	<context:property-placeholder location="classpath:jdbc-connect.properties"/>
+	
+	<!-- 配置数据源，使用C3P0连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driverClass}"/>
+		<property name="jdbcUrl" value="${jdbc.url}"/>
+		<property name="user" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+	</bean>
+	
+	<!-- 注册转账DAO bean，注入数据源，操作数据库dataSource -->
+	<bean name="accountDao" class="com.test.spring.transaction.demo4.AccountDaoImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<!-- 注册转账service bean，注入DAO，注入事务管理模版(事务定义在service服务层)transactionTemplate -->	
+	<bean name="accountService" class="com.test.spring.transaction.demo4.AccountServiceImpl">
+		<property name="accountDao" ref="accountDao"/>
+	</bean>
+	
+	<!-- 配置事务管理器：管理数据源的事务，引入数据源dataSource -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- 配置事务性通知，以切面通知的方式对业务进行事务曾强处理 -->
+	<tx:advice id="accountAdvice" transaction-manager="transactionManager">
+		<!-- 配置事务属性，比如事务的隔离级别、传播级别、异常处理等 -->
+		<tx:attributes>
+			<tx:method name="transferAccount" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 配置切面 -->
+	<aop:config>
+		<aop:pointcut id="accountPointcut" expression="execution(* com.test.spring.transaction.demo4.AccountServiceImpl.transferAccount(..))"/>
+		<aop:advisor advice-ref="accountAdvice" pointcut-ref="accountPointcut"/>
+	</aop:config>
+	
+</beans>
