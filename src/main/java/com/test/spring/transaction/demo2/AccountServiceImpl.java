@@ -25,12 +25,23 @@ public class AccountServiceImpl implements AccountService{
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public void transferAccount(final String out,final String in,final double money) {
-		//使用匿名内部类的方式执行，注意：匿名内部类使用外部参数，外部参数需要声明为final类型
-		transactionTemplate.execute(status->{
-			accountDao.outMoney(out, money);
-			accountDao.inMoney(in, money);
-			int i = 1/0;
-			return null;
-		});
+		//使用transactionTemplate执行事务处理
+		String msg = transactionTemplate.execute(status -> dataProcess(out,in,money));
+		System.out.println(msg);
+	}
+
+	/**
+	 * 数据处理
+	 * @param out
+	 * @param in
+	 * @param money
+	 * @return
+	 */
+	private String dataProcess(String out, String in, double money) {
+		accountDao.outMoney(out, money);
+		accountDao.inMoney(in, money);
+		//发生异常，事务回滚
+		int i = 1/0;
+		return "发生异常，事务回滚";
 	}
 }
