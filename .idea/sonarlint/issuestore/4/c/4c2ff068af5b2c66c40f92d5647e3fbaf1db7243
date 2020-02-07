@@ -1,5 +1,4 @@
 
-Ysquid:S3518"CMake sure this expression can't be zero before doing this division.(õ∫ù<
-?squid:S1148"#Use a logger to log this exception.(Ä…‘Ö˝ˇˇˇˇ
-Ksquid:S1854"5Remove this useless assignment to local variable "i".(õ∫ù<
-<squid:S1481"&Remove this unused "i" local variable.(õ∫ù<
+Csquid:S1481"&Remove this unused "i" local variable.(õ∫ù<8∏û⁄Å˝-
+`squid:S3518"CMake sure this expression can't be zero before doing this division.(õ∫ù<8∏û⁄Å˝-
+Rsquid:S1854"5Remove this useless assignment to local variable "i".(õ∫ù<8∏û⁄Å˝-
